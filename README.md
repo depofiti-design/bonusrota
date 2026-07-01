@@ -1,3 +1,4 @@
+[README.md](https://github.com/user-attachments/files/29575845/README.md)
 # BonusRota — Canlıya Alma Adımları
 
 ## 1. Supabase projesi oluştur
