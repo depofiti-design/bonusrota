@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>BonusRota — Deneme Bonusu Rehberi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#120c2e;
+  --bg2:#1c1444;
+  --card:#1a1440;
+  --card2:#251a56;
+  --lilac:#b98cff;
+  --gold:#f5c451;
+  --text:#f4f1ff;
+  --muted:#a99fd1;
+  --line:rgba(185,140,255,.18);
+  --green:#35d68a;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:var(--bg);}
+body{
+  font-family:'Inter',-apple-system,sans-serif;
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  display:flex;justify-content:center;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(185,140,255,.16), transparent 45%),
+    radial-gradient(circle at 90% 15%, rgba(245,196,81,.10), transparent 40%),
+    var(--bg);
+}
+*{scrollbar-width:thin;scrollbar-color:rgba(185,140,255,.4) transparent;}
+.app{width:100%;max-width:460px;min-height:100vh;position:relative;padding-bottom:110px;}
+
+/* route line signature motif */
+.route-line{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:.5;}
+
+h1,h2,h3,.disp{font-family:'Space Grotesk',sans-serif;}
+
+/* header */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 18px 10px;position:relative;z-index:2;
+}
+.logo{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk';font-weight:700;font-size:19px;letter-spacing:-.3px;}
+.logo .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);}
+.logo span.sub{color:var(--lilac);}
+.icon-btn{width:38px;height:38px;border-radius:12px;background:var(--card2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+
+/* ticker */
+.ticker-wrap{margin:6px 18px 0;position:relative;z-index:2;}
+.ticker{
+  background:linear-gradient(135deg, rgba(53,214,138,.14), rgba(185,140,255,.10));
+  border:1px solid rgba(53,214,138,.3);
+  border-radius:14px;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;font-size:12.5px;
+  animation:slideDown .4s ease;
+}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px);}to{opacity:1;transform:translateY(0);}}
+.ticker .pulse{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 8px var(--green);}
+.ticker b{color:var(--green);}
+
+/* hero */
+.hero{margin:18px 18px 0;position:relative;z-index:2;
+  background:linear-gradient(160deg,var(--card2),var(--card) 70%);
+  border:1px solid var(--line);border-radius:22px;padding:22px 20px;overflow:hidden;
+}
+.hero::after{content:'';position:absolute;top:-40%;right:-20%;width:220px;height:220px;background:radial-gradient(circle,rgba(245,196,81,.22),transparent 70%);}
+.hero .eyebrow{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px;}
+.hero h1{font-size:25px;line-height:1.25;font-weight:700;margin-bottom:8px;}
+.hero p{font-size:13px;color:var(--muted);margin-bottom:16px;max-width:290px;}
+.hero-cta{display:flex;gap:10px;position:relative;z-index:1;}
+.btn-primary{
+  background:linear-gradient(135deg,var(--gold),#e0a93a);color:#22160a;font-weight:700;
+  border:none;padding:12px 18px;border-radius:12px;font-size:13.5px;cursor:pointer;
+  box-shadow:0 8px 20px rgba(245,196,81,.25);
+}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text);padding:12px 16px;border-radius:12px;font-size:13.5px;cursor:pointer;}
+
+/* filter pills */
+.filters{display:flex;gap:8px;padding:18px 18px 6px;position:relative;z-index:2;overflow-x:auto;}
+.pill{
+  padding:8px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card2);
+  color:var(--muted);font-size:12.5px;font-weight:600;white-space:nowrap;cursor:pointer;transition:.15s;
+}
+.pill.active{background:linear-gradient(135deg,var(--lilac),#8f5fe8);color:#fff;border-color:transparent;}
+
+/* section header */
+.sec-head{display:flex;align-items:center;gap:8px;padding:20px 18px 10px;position:relative;z-index:2;}
+.sec-head .line{flex:1;height:1px;background:var(--line);}
+.sec-head h2{font-size:14px;font-weight:600;color:var(--lilac);letter-spacing:.2px;}
+
+/* site cards */
+.sites{padding:0 18px;display:flex;flex-direction:column;gap:10px;position:relative;z-index:2;}
+.site-card{
+  display:flex;align-items:center;gap:12px;
+  background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;
+}
+.site-logo{
+  width:52px;height:52px;border-radius:13px;flex-shrink:0;
+  background:linear-gradient(150deg,#2a1f5e,#150f38);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk';font-weight:700;font-size:11px;color:var(--gold);
+  border:1px solid rgba(245,196,81,.25);text-align:center;
+}
+.site-info{flex:1;min-width:0;}
+.site-name-row{display:flex;align-items:center;gap:6px;margin-bottom:2px;}
+.site-name{font-size:14px;font-weight:700;}
+.badge{font-size:9px;font-weight:800;padding:2px 7px;border-radius:6px;letter-spacing:.4px;}
+.badge.trend{background:rgba(245,196,81,.18);color:var(--gold);}
+.badge.pop{background:rgba(53,214,138,.18);color:var(--green);}
+.site-bonus{font-size:16px;font-weight:800;color:var(--gold);}
+.site-type{font-size:11px;color:var(--muted);}
+.cta-btn{
+  background:linear-gradient(135deg,var(--lilac),#8f5fe8);color:#fff;font-weight:700;font-size:12px;
+  border:none;padding:10px 14px;border-radius:11px;cursor:pointer;white-space:nowrap;
+  box-shadow:0 6px 14px rgba(185,140,255,.25);
+}
+
+/* floating action bar */
+.fab-bar{
+  position:fixed;bottom:16px;left:50%;transform:translateX(-50%);
+  width:calc(100% - 36px);max-width:424px;z-index:40;
+  background:rgba(26,20,64,.85);backdrop-filter:blur(14px);
+  border:1px solid var(--line);border-radius:20px;padding:10px;
+  display:flex;gap:8px;box-shadow:0 12px 30px rgba(0,0,0,.4);
+}
+.fab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 4px;border-radius:14px;cursor:pointer;color:var(--muted);font-size:10.5px;font-weight:600;}
+.fab.active-fab{background:var(--card2);color:var(--text);}
+.fab .fico{font-size:19px;}
+
+/* modals */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(6,4,20,.78);backdrop-filter:blur(4px);z-index:100;align-items:center;justify-content:center;padding:20px;}
+.modal-bg.show{display:flex;}
+.modal{background:linear-gradient(165deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:22px;padding:22px;width:100%;max-width:340px;text-align:center;position:relative;}
+.modal .close{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:9px;background:var(--card);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);}
+.modal h3{font-size:18px;margin:4px 0 6px;}
+.modal p.sub{font-size:12.5px;color:var(--muted);margin-bottom:16px;}
+
+#wheelSvg{width:240px;height:240px;margin:0 auto;transition:transform 4s cubic-bezier(.17,.67,.16,.99);}
+.wheel-pointer{width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:16px solid var(--gold);margin:0 auto -6px;position:relative;z-index:2;}
+
+.chest-row{display:flex;gap:12px;justify-content:center;margin:18px 0;}
+.chest-btn{background:transparent;border:none;cursor:pointer;padding:10px;border-radius:16px;transition:.2s;}
+.chest-btn svg{width:64px;height:64px;}
+.chest-btn.dimmed{opacity:.25;pointer-events:none;}
+.chest-btn.selected{background:rgba(245,196,81,.12);transform:scale(1.05);}
+
+.win-amount{font-family:'Space Grotesk';font-size:34px;font-weight:700;color:var(--gold);margin:10px 0 2px;}
+.win-site{font-size:13px;color:var(--muted);margin-bottom:18px;}
+
+/* devtools block screen */
+#blockScreen{
+  display:none;position:fixed;inset:0;background:var(--bg);z-index:9999;
+  flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;
+}
+#blockScreen.show{display:flex;}
+#blockScreen h2{font-size:22px;color:#ff6767;margin-bottom:10px;font-family:'Space Grotesk';}
+#blockScreen p{color:var(--muted);font-size:13px;max-width:280px;}
+
+@media(max-width:380px){.hero h1{font-size:22px;}}
+</style>
+</head>
+<body>
+
+<div id="blockScreen">
+  <h2>Erişim Kısıtlandı</h2>
+  <p>Bu içerik geliştirici araçları açıkken görüntülenemez. Devam etmek için paneli kapatın.</p>
+</div>
+
+<div class="app" id="app">
+  <svg class="route-line" viewBox="0 0 460 1400" preserveAspectRatio="none">
+    <path d="M40,60 C 120,140 20,260 90,340 S 220,420 180,520 S 380,600 300,720 S 120,820 200,940" stroke="rgba(185,140,255,.15)" stroke-width="2" fill="none" stroke-dasharray="1 10" stroke-linecap="round"/>
+  </svg>
+
+  <header>
+    <div class="logo"><span class="dot"></span>Bonus<span class="sub">Rota</span></div>
+    <div class="icon-btn">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    </div>
+  </header>
+
+  <div class="ticker-wrap">
+    <div class="ticker" id="ticker">
+      <span class="pulse"></span>
+      <span id="tickerUser">ay****17</span> az önce <b id="tickerAmount">~3.747 TL</b> kazandı
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">Güncel Rota</div>
+    <h1>Bonus rotanı çiz,<br>kazanca giden yolu bul.</h1>
+    <p>Güvenilir siteleri karşılaştır, çarkı çevir, sandığı aç — bonusuna en kısa yoldan ulaş.</p>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="openWheel()">Çarkı Çevir</button>
+      <button class="btn-ghost" onclick="openTreasure()">Sandığa Bak</button>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="pill active" onclick="setFilter('all',this)">Tümü</div>
+    <div class="pill" onclick="setFilter('trend',this)">Trend</div>
+    <div class="pill" onclick="setFilter('popular',this)">Popüler</div>
+  </div>
+
+  <div class="sec-head"><div class="line"></div><h2>Trend Siteler</h2><div class="line"></div></div>
+  <div class="sites" id="trendList"></div>
+
+  <div class="sec-head"><div class="line"></div><h2>Popüler Siteler</h2><div class="line"></div></div>
+  <div class="sites" id="popList"></div>
+
+  <div style="height:30px;"></div>
+</div>
+
+<div class="fab-bar">
+  <div class="fab active-fab"><span class="fico">🏠</span>Anasayfa</div>
+  <div class="fab" onclick="openWheel()"><span class="fico">🎡</span>Çark</div>
+  <div class="fab" onclick="openTreasure()"><span class="fico">🗝️</span>Sandık</div>
+  <div class="fab"><span class="fico">✉️</span>İletişim</div>
+</div>
+
+<!-- WHEEL MODAL -->
+<div class="modal-bg" id="wheelModal">
+  <div class="modal">
+    <div class="close" onclick="closeModal('wheelModal')">✕</div>
+    <h3>Rota Çarkı</h3>
+    <p class="sub">Çevir, rotanı belirle, bonusunu kap.</p>
+    <div class="wheel-pointer"></div>
+    <svg id="wheelSvg" viewBox="0 0 200 200"></svg>
+    <button class="btn-primary" style="width:100%;margin-top:18px;" id="spinBtn" onclick="spinWheel()">Çevir</button>
+  </div>
+</div>
+
+<!-- WIN MODAL -->
+<div class="modal-bg" id="winModal">
+  <div class="modal">
+    <div class="close" onclick="closeModal('winModal')">✕</div>
+    <h3>🎉 Rota Tamamlandı!</h3>
+    <div class="win-amount" id="winPrize">500 TL</div>
+    <div class="win-site" id="winSite">SiteAdı</div>
+    <a href="#" target="_blank" class="btn-primary" style="display:block;width:100%;text-decoration:none;" id="winLink">Bonusu Al</a>
+  </div>
+</div>
+
+<!-- TREASURE MODAL -->
+<div class="modal-bg" id="treasureModal">
+  <div class="modal">
+    <div class="close" onclick="closeModal('treasureModal')">✕</div>
+    <div id="treasureContent">
+      <h3>Hazine Rotası</h3>
+      <p class="sub">Üç kapıdan birini seç.</p>
+      <div class="chest-row">
+        <button class="chest-btn" id="chest0" onclick="pickChest(0)"></button>
+        <button class="chest-btn" id="chest1" onclick="pickChest(1)"></button>
+        <button class="chest-btn" id="chest2" onclick="pickChest(2)"></button>
+      </div>
+    </div>
+    <div id="treasureResult" style="display:none;">
+      <h3>🎁 Kazandın!</h3>
+      <div class="win-amount" id="wonAmount">250 TL</div>
+      <div class="win-site" id="wonSite">SiteAdı</div>
+      <a href="#" target="_blank" class="btn-primary" style="display:block;width:100%;text-decoration:none;" id="wonLink">Bonusu Al</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ============ SUPABASE AYARLARI (doldur) ============ */
+const SUPABASE_URL = 'https://sjcldekwdhesskknxiwtb.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqY2xkZWt3ZGhlc2trbnhpd3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MzkyMzEsImV4cCI6MjA5ODUxNTIzMX0.ti3vUkRgXiJwYr7__qU_ZxHBdh9e3zi-G7tX7ypUdeA';
+let sb = null;
+try { sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) {}
+
+/* Supabase bağlanamazsa gösterilecek yedek liste */
+let SITES = [
+  {name:"NovaBet", bonus:"500", type:"Deneme Bonusu", tag:"trend", link:"#"},
+  {name:"KristalBet", bonus:"1.000", type:"Deneme Bonusu", tag:"trend", link:"#"},
+  {name:"ZirveBahis", bonus:"750", type:"Hoş Geldin Bonusu", tag:"trend", link:"#"},
+  {name:"AtlasCasino", bonus:"2.000", type:"Deneme Bonusu", tag:"popular", link:"#"},
+  {name:"VeloBet", bonus:"300", type:"Freespin Bonusu", tag:"popular", link:"#"},
+];
+function renderCard(s){
+  const badge = s.tag==='trend' ? '<span class="badge trend">TREND</span>' : '<span class="badge pop">POPÜLER</span>';
+  const logoInner = s.logo
+    ? `<img src="${s.logo}" alt="${s.name}" style="width:100%;height:100%;object-fit:contain;border-radius:inherit;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;">${s.name.slice(0,2).toUpperCase()}</span>`
+    : s.name.slice(0,2).toUpperCase();
+  return `
+  <div class="site-card">
+    <div class="site-logo">${logoInner}</div>
+    <div class="site-info">
+      <div class="site-name-row"><span class="site-name">${s.name}</span>${badge}</div>
+      <div class="site-bonus">${s.bonus} <span style="font-size:11px;color:var(--muted);">TL</span></div>
+      <div class="site-type">${s.type}</div>
+    </div>
+    <a href="${s.link}" target="_blank" class="cta-btn">Bonusu Al</a>
+  </div>`;
+}
+function render(filter='all'){
+  const trends = SITES.filter(s=>s.tag==='trend' && (filter==='all'||filter==='trend'));
+  const pops = SITES.filter(s=>s.tag==='popular' && (filter==='all'||filter==='popular'));
+  document.getElementById('trendList').innerHTML = trends.map(renderCard).join('') || '<p style="color:var(--muted);font-size:12px;padding:10px;">Gösterilecek site yok.</p>';
+  document.getElementById('popList').innerHTML = pops.map(renderCard).join('') || '';
+  document.getElementById('popList').parentElement && (document.getElementById('popList').style.display = pops.length ? 'flex':'none');
+}
+function setFilter(f, el){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  render(f);
+}
+/* ============ TICKER ============ */
+const names=['ay','em','me','se','ka','bu','ha','al','oz','de'];
+const amounts=[3747,2269,4770,1850,5200,890,12500,3333,7777,999];
+function tick(){
+  const n = names[Math.floor(Math.random()*names.length)];
+  const s = String(Math.floor(Math.random()*99)).padStart(2,'0');
+  const a = amounts[Math.floor(Math.random()*amounts.length)];
+  const el = document.getElementById('ticker');
+  el.style.animation='none'; void el.offsetWidth; el.style.animation='slideDown .4s ease';
+  document.getElementById('tickerUser').textContent = `${n}****${s}`;
+  document.getElementById('tickerAmount').textContent = `~${a.toLocaleString('tr-TR')} TL`;
+}
+setInterval(tick, 5000);
+
+/* ============ WHEEL ============ */
+const wheelColors=["#b98cff","#8f5fe8","#f5c451","#e0a93a","#35d68a","#26b876","#7a5ff0","#c9a4ff"];
+let wheelData=[];
+function buildWheel(){
+  const pool = SITES.filter(s=>s.tag==='trend'||s.tag==='popular');
+  wheelData = Array.from({length:8}, (_,i)=> pool[i % pool.length]);
+  let html='';
+  for(let i=0;i<8;i++){
+    const sA=(i*45-90)*Math.PI/180, eA=((i+1)*45-90)*Math.PI/180;
+    const x1=100+95*Math.cos(sA), y1=100+95*Math.sin(sA);
+    const x2=100+95*Math.cos(eA), y2=100+95*Math.sin(eA);
+    const tA=(i*45+22.5-90)*Math.PI/180;
+    const tx=100+62*Math.cos(tA), ty=100+62*Math.sin(tA);
+    html+=`<path d="M100,100 L${x1},${y1} A95,95 0 0,1 ${x2},${y2} Z" fill="${wheelColors[i]}" stroke="#120c2e" stroke-width="2"/>
+    <text x="${tx}" y="${ty}" fill="#120c2e" font-size="9" font-weight="700" text-anchor="middle" transform="rotate(${i*45+22.5},${tx},${ty})">${wheelData[i].bonus} TL</text>`;
+  }
+  html+=`<circle cx="100" cy="100" r="24" fill="#f5c451" stroke="#e0a93a" stroke-width="3"/>
+  <text x="100" y="100" font-size="9" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#22160a">ÇEVİR</text>`;
+  document.getElementById('wheelSvg').innerHTML = html;
+}
+
+/* ============ SUPABASE'DEN VERİ YÜKLE ============ */
+async function loadSites(){
+  if(sb){
+    try{
+      const { data, error } = await sb.from('sites').select('*').eq('active', true).order('display_order', {ascending:true});
+      if(!error && data && data.length){
+        SITES = data.map(d => ({name:d.name, bonus:d.bonus, type:d.type, tag:d.tag, link:d.link||'#', logo:d.logo||''}));
+      }
+    }catch(e){ console.warn('Supabase yüklenemedi, yedek liste kullanılıyor.'); }
+  }
+  render();
+  buildWheel();
+}
+loadSites();
+let spinning=false;
+function spinWheel(){
+  if(spinning) return; spinning=true;
+  document.getElementById('spinBtn').textContent='Çevriliyor...';
+  const idx = Math.floor(Math.random()*8);
+  const rot = 360*5 + (360 - (idx*45+22.5));
+  const svg = document.getElementById('wheelSvg');
+  svg.style.transform = `rotate(${rot}deg)`;
+  setTimeout(()=>{
+    closeModal('wheelModal');
+    const w = wheelData[idx];
+    document.getElementById('winPrize').textContent = w.bonus + ' TL';
+    document.getElementById('winSite').textContent = w.name;
+    document.getElementById('winLink').href = w.link;
+    openModal('winModal');
+    spinning=false;
+    document.getElementById('spinBtn').textContent='Çevir';
+    svg.style.transition='none'; svg.style.transform='rotate(0deg)';
+    setTimeout(()=>svg.style.transition='transform 4s cubic-bezier(.17,.67,.16,.99)',50);
+  },4000);
+}
+
+/* ============ TREASURE ============ */
+const chestClosedSVG = `<svg viewBox="0 0 64 64"><rect x="6" y="30" width="52" height="30" rx="4" fill="#3a2d7a" stroke="#251a56" stroke-width="2"/><rect x="6" y="38" width="52" height="5" fill="#4d3aa0"/><rect x="26" y="34" width="12" height="14" rx="3" fill="#f5c451" stroke="#e0a93a" stroke-width="1"/><path d="M6 30 L32 8 L58 30 L58 36 L32 16 L6 36 Z" fill="#5a44c4" stroke="#251a56" stroke-width="2"/></svg>`;
+const chestOpenSVG = `<svg viewBox="0 0 64 64"><rect x="6" y="28" width="52" height="32" rx="4" fill="#3a2d7a" stroke="#251a56" stroke-width="2"/><path d="M6 28 L32 10 L58 28" fill="#5a44c4" stroke="#251a56" stroke-width="2"/><circle cx="22" cy="40" r="5" fill="#f5c451"/><circle cx="32" cy="38" r="5" fill="#fff2c9"/><circle cx="42" cy="40" r="5" fill="#f5c451"/></svg>`;
+document.querySelectorAll('.chest-btn').forEach(b=> b.innerHTML = chestClosedSVG.replace('{CHEST}',''));
+function pickChest(idx){
+  [0,1,2].forEach(i=>{
+    const c=document.getElementById('chest'+i);
+    c.disabled=true;
+    c.className = i===idx ? 'chest-btn selected':'chest-btn dimmed';
+  });
+  setTimeout(()=>{
+    document.getElementById('treasureContent').style.display='none';
+    const w = SITES[Math.floor(Math.random()*SITES.length)];
+    document.getElementById('wonAmount').textContent = w.bonus+' TL';
+    document.getElementById('wonSite').textContent = w.name;
+    document.getElementById('wonLink').href = w.link;
+    document.getElementById('treasureResult').style.display='block';
+  },1200);
+}
+function openTreasure(){
+  document.getElementById('treasureContent').style.display='block';
+  document.getElementById('treasureResult').style.display='none';
+  [0,1,2].forEach(i=>{ const c=document.getElementById('chest'+i); c.className='chest-btn'; c.disabled=false; c.innerHTML=chestClosedSVG; });
+  openModal('treasureModal');
+}
+
+/* ============ MODAL HELPERS ============ */
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function openWheel(){ openModal('wheelModal'); }
+
+/* ============ DEVTOOLS KORUMASI ============ */
+(function(){
+  const threshold = 160;
+  let triggered = false;
+  function check(){
+    const wDiff = window.outerWidth - window.innerWidth;
+    const hDiff = window.outerHeight - window.innerHeight;
+    if(wDiff > threshold || hDiff > threshold){
+      if(!triggered){ triggered = true; document.getElementById('blockScreen').classList.add('show'); }
+    } else {
+      if(triggered){ triggered = false; document.getElementById('blockScreen').classList.remove('show'); }
+    }
+  }
+  setInterval(check, 700);
+  window.addEventListener('resize', check);
+})();
+</script>
+</body>
+</html>

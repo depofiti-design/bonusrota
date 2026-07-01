@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>BonusRota — Yönetim Paneli</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#120c2e;--card:#1a1440;--card2:#251a56;--lilac:#b98cff;--gold:#f5c451;--text:#f4f1ff;--muted:#a99fd1;--line:rgba(185,140,255,.18);--red:#ff6767;--green:#35d68a;}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Inter',sans-serif;}
+body{background:var(--bg);color:var(--text);min-height:100vh;padding:24px;}
+.wrap{max-width:920px;margin:0 auto;}
+h1{font-size:20px;margin-bottom:4px;}
+p.sub{color:var(--muted);font-size:13px;margin-bottom:22px;}
+input,select{background:var(--card2);border:1px solid var(--line);color:var(--text);padding:9px 11px;border-radius:8px;font-size:13px;width:100%;}
+button{cursor:pointer;border:none;border-radius:8px;font-weight:700;font-size:13px;padding:9px 14px;}
+.btn-primary{background:linear-gradient(135deg,var(--lilac),#8f5fe8);color:#fff;}
+.btn-danger{background:rgba(255,103,103,.15);color:var(--red);}
+.btn-ghost{background:var(--card2);color:var(--text);border:1px solid var(--line);}
+
+#gate{max-width:340px;margin:80px auto;text-align:center;}
+#gate input{margin-bottom:10px;}
+
+#panel{display:none;}
+.add-form{display:grid;grid-template-columns:1.2fr 1fr 1.2fr 1fr 1.6fr .8fr;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:20px;}
+.add-form button{grid-column:span 6;}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden;}
+th,td{padding:10px 12px;text-align:left;font-size:12.5px;border-bottom:1px solid var(--line);}
+th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:10.5px;letter-spacing:.4px;}
+td input,td select{padding:6px 8px;font-size:12px;}
+.row-actions{display:flex;gap:6px;}
+.status-msg{font-size:12px;color:var(--green);margin-bottom:12px;min-height:16px;}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <h1>BonusRota Yönetim</h1>
+  <p class="sub">Devam etmek için şifre gir.</p>
+  <input type="password" id="pwInput" placeholder="Şifre">
+  <button class="btn-primary" style="width:100%;" onclick="checkPw()">Giriş Yap</button>
+</div>
+
+<div id="panel">
+  <div class="wrap">
+    <h1>BonusRota — Site Yönetimi</h1>
+    <p class="sub">Site ekle, düzenle, sırala. Değişiklikler anında yayına yansır.</p>
+    <div class="status-msg" id="statusMsg"></div>
+
+    <div class="add-form">
+      <input id="newName" placeholder="Site adı">
+      <input id="newBonus" placeholder="Bonus (örn: 500)">
+      <input id="newType" placeholder="Bonus türü" value="Deneme Bonusu">
+      <select id="newTag"><option value="trend">Trend</option><option value="popular">Popüler</option></select>
+      <input id="newLink" placeholder="Affiliate link">
+      <input id="newLogo" placeholder="Logo URL (opsiyonel)">
+      <button class="btn-primary" onclick="addSite()">+ Site Ekle</button>
+    </div>
+
+    <table>
+      <thead><tr><th>Sıra</th><th>Ad</th><th>Bonus</th><th>Tür</th><th>Etiket</th><th>Link</th><th>Logo</th><th>Aktif</th><th></th></tr></thead>
+      <tbody id="siteRows"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+/* ============ AYARLAR (doldur) ============ */
+const SUPABASE_URL = 'https://sjcldekwdhesskknxiwtb.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqY2xkZWt3ZGhlc2trbnhpd3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MzkyMzEsImV4cCI6MjA5ODUxNTIzMX0.ti3vUkRgXiJwYr7__qU_ZxHBdh9e3zi-G7tX7ypUdeA';
+const ADMIN_PASSWORD = 'bonusrota2025'; // istersen değiştir
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function checkPw(){
+  const v = document.getElementById('pwInput').value;
+  if(v === ADMIN_PASSWORD){
+    document.getElementById('gate').style.display='none';
+    document.getElementById('panel').style.display='block';
+    loadRows();
+  } else {
+    alert('Yanlış şifre');
+  }
+}
+document.getElementById('pwInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkPw(); });
+
+function showStatus(msg){
+  const el = document.getElementById('statusMsg');
+  el.textContent = msg;
+  setTimeout(()=>{ if(el.textContent===msg) el.textContent=''; }, 2500);
+}
+
+async function loadRows(){
+  const { data, error } = await sb.from('sites').select('*').order('display_order', {ascending:true});
+  if(error){ showStatus('Hata: '+error.message); return; }
+  document.getElementById('siteRows').innerHTML = data.map(rowHtml).join('');
+}
+
+function rowHtml(s){
+  return `<tr data-id="${s.id}">
+    <td><input type="number" value="${s.display_order||0}" style="width:60px;" onchange="updateField(${s.id},'display_order',this.value,true)"></td>
+    <td><input value="${s.name||''}" onchange="updateField(${s.id},'name',this.value)"></td>
+    <td><input value="${s.bonus||''}" style="width:80px;" onchange="updateField(${s.id},'bonus',this.value)"></td>
+    <td><input value="${s.type||''}" onchange="updateField(${s.id},'type',this.value)"></td>
+    <td><select onchange="updateField(${s.id},'tag',this.value)">
+      <option value="trend" ${s.tag==='trend'?'selected':''}>Trend</option>
+      <option value="popular" ${s.tag==='popular'?'selected':''}>Popüler</option>
+    </select></td>
+    <td><input value="${s.link||''}" onchange="updateField(${s.id},'link',this.value)"></td>
+    <td><input value="${s.logo||''}" onchange="updateField(${s.id},'logo',this.value)"></td>
+    <td style="text-align:center;"><input type="checkbox" ${s.active?'checked':''} onchange="updateField(${s.id},'active',this.checked)"></td>
+    <td><div class="row-actions"><button class="btn-danger" onclick="deleteSite(${s.id})">Sil</button></div></td>
+  </tr>`;
+}
+
+async function addSite(){
+  const payload = {
+    name: document.getElementById('newName').value.trim(),
+    bonus: document.getElementById('newBonus').value.trim(),
+    type: document.getElementById('newType').value.trim() || 'Deneme Bonusu',
+    tag: document.getElementById('newTag').value,
+    link: document.getElementById('newLink').value.trim() || '#',
+    logo: document.getElementById('newLogo').value.trim(),
+    active: true,
+    display_order: 0
+  };
+  if(!payload.name || !payload.bonus){ alert('Site adı ve bonus zorunlu.'); return; }
+  const { error } = await sb.from('sites').insert(payload);
+  if(error){ showStatus('Hata: '+error.message); return; }
+  ['newName','newBonus','newLink','newLogo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('newType').value='Deneme Bonusu';
+  showStatus('Site eklendi.');
+  loadRows();
+}
+
+async function updateField(id, field, value, isNumber){
+  const payload = {}; payload[field] = isNumber ? Number(value) : value;
+  const { error } = await sb.from('sites').update(payload).eq('id', id);
+  if(error){ showStatus('Hata: '+error.message); return; }
+  showStatus('Kaydedildi.');
+}
+
+async function deleteSite(id){
+  if(!confirm('Bu siteyi silmek istediğine emin misin?')) return;
+  const { error } = await sb.from('sites').delete().eq('id', id);
+  if(error){ showStatus('Hata: '+error.message); return; }
+  showStatus('Silindi.');
+  loadRows();
+}
+</script>
+</body>
+</html>
