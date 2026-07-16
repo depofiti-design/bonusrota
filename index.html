@@ -295,7 +295,7 @@ function renderCard(s){
     <div class="site-logo">${logoInner}</div>
     <div class="site-info">
       <div class="site-name-row"><span class="site-name">${s.name}</span>${badge}</div>
-      <div class="site-bonus">${s.bonus} <span style="font-size:11px;color:var(--muted);">TL</span></div>
+      <div class="site-bonus">${s.bonus}</div>
       <div class="site-type">${s.type}</div>
     </div>
     <a href="${s.link}" target="_blank" class="cta-btn">Bonusu Al</a>
@@ -341,7 +341,7 @@ function buildWheel(){
     const tA=(i*45+22.5-90)*Math.PI/180;
     const tx=100+62*Math.cos(tA), ty=100+62*Math.sin(tA);
     html+=`<path d="M100,100 L${x1},${y1} A95,95 0 0,1 ${x2},${y2} Z" fill="${wheelColors[i]}" stroke="#120c2e" stroke-width="2"/>
-    <text x="${tx}" y="${ty}" fill="#120c2e" font-size="9" font-weight="700" text-anchor="middle" transform="rotate(${i*45+22.5},${tx},${ty})">${wheelData[i].bonus} TL</text>`;
+    <text x="${tx}" y="${ty}" fill="#120c2e" font-size="9" font-weight="700" text-anchor="middle" transform="rotate(${i*45+22.5},${tx},${ty})">${wheelData[i].bonus}</text>`;
   }
   html+=`<circle cx="100" cy="100" r="24" fill="#f5c451" stroke="#e0a93a" stroke-width="3"/>
   <text x="100" y="100" font-size="9" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#22160a">ÇEVİR</text>`;
@@ -373,7 +373,7 @@ function spinWheel(){
   setTimeout(()=>{
     closeModal('wheelModal');
     const w = wheelData[idx];
-    document.getElementById('winPrize').textContent = w.bonus + ' TL';
+    document.getElementById('winPrize').textContent = w.bonus;
     document.getElementById('winSite').textContent = w.name;
     document.getElementById('winLink').href = w.link;
     openModal('winModal');
@@ -397,7 +397,7 @@ function pickChest(idx){
   setTimeout(()=>{
     document.getElementById('treasureContent').style.display='none';
     const w = SITES[Math.floor(Math.random()*SITES.length)];
-    document.getElementById('wonAmount').textContent = w.bonus+' TL';
+    document.getElementById('wonAmount').textContent = w.bonus;
     document.getElementById('wonSite').textContent = w.name;
     document.getElementById('wonLink').href = w.link;
     document.getElementById('treasureResult').style.display='block';
