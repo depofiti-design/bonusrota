@@ -417,6 +417,10 @@ function openWheel(){ openModal('wheelModal'); }
 
 /* ============ DEVTOOLS KORUMASI ============ */
 (function(){
+  const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  const isMobileUA = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  if(isTouchDevice || isMobileUA) return;
+
   const threshold = 160;
   let triggered = false;
   function check(){
