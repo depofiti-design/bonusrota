@@ -36,3 +36,21 @@ insert into sites (name, bonus, type, tag, link, logo, display_order, active) va
   ('ZirveBahis', '750', 'Hoş Geldin Bonusu', 'trend', '#', '', 3, true),
   ('AtlasCasino', '2.000', 'Deneme Bonusu', 'popular', '#', '', 4, true),
   ('VeloBet', '300', 'Freespin Bonusu', 'popular', '#', '', 5, true);
+
+-- ============ Analytics (bot start + site açılışı takibi) ============
+create table if not exists events (
+  id bigint generated always as identity primary key,
+  event_type text not null,              -- 'bot_start' | 'site_open'
+  telegram_user_id bigint,
+  source text,                            -- /start ile gelen referans param (örn. ads1)
+  created_at timestamptz default now()
+);
+
+alter table events enable row level security;
+
+-- sites tablosundaki gibi anon key'e tam erişim: webhook ve site anon key ile yazıyor,
+-- admin paneli/stats sayfası anon key ile okuyor. Gerçek yetkilendirme yok, şifre gate'e güveniyoruz.
+create policy "Anon full access for events"
+  on events for all
+  using (true)
+  with check (true);

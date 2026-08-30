@@ -362,6 +362,18 @@ async function loadSites(){
   buildWheel();
 }
 loadSites();
+
+/* ============ ANALİTİK: site açılışını kaydet ============ */
+function logSiteOpen(){
+  if(!sb) return;
+  try{
+    const tg = window.Telegram && window.Telegram.WebApp;
+    const userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
+    const source = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || null;
+    sb.from('events').insert({ event_type:'site_open', telegram_user_id:userId, source }).then(()=>{});
+  }catch(e){}
+}
+logSiteOpen();
 let spinning=false;
 function spinWheel(){
   if(spinning) return; spinning=true;

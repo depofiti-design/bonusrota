@@ -1,4 +1,21 @@
 const WEBAPP_URL = 'https://bonusrota.vercel.app';
+const SUPABASE_URL = 'https://sjcldekwdheskknxiwtb.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqY2xkZWt3ZGhlc2trbnhpd3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MzkyMzEsImV4cCI6MjA5ODUxNTIzMX0.ti3vUkRgXiJwYr7__qU_ZxHBdh9e3zi-G7tX7ypUdeA';
+
+async function logEvent(eventType, telegramUserId, source){
+  try{
+    await fetch(`${SUPABASE_URL}/rest/v1/events`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ event_type: eventType, telegram_user_id: telegramUserId ?? null, source: source ?? null }),
+    });
+  }catch(e){ /* analytics hatası bot akışını kesmesin */ }
+}
 
 const START_MESSAGE = [
   "👋 *BonusRota'ya hoş geldin!*",
@@ -28,8 +45,12 @@ module.exports = async (req, res) => {
 
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const message = req.body && req.body.message;
+  const text = message && message.text;
 
-  if (token && message && message.text === '/start') {
+  if (token && message && text && text.split(' ')[0] === '/start') {
+    const source = text.split(' ')[1] || null;
+    await logEvent('bot_start', message.from && message.from.id, source);
+
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
