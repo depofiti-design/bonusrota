@@ -270,21 +270,32 @@ header{
 </div>
 
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script>
-/* ============ SUPABASE AYARLARI (doldur) ============ */
-const SUPABASE_URL = 'https://sjcldekwdheskknxiwtb.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqY2xkZWt3ZGhlc2trbnhpd3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MzkyMzEsImV4cCI6MjA5ODUxNTIzMX0.ti3vUkRgXiJwYr7__qU_ZxHBdh9e3zi-G7tX7ypUdeA';
-let sb = null;
-try { sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); } catch(e) {}
+/* ============ FIREBASE AYARLARI ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDM_OZQ-QKuEOa7hozQXXzk2ln4jH_hTzM",
+  authDomain: "bonusrota.firebaseapp.com",
+  projectId: "bonusrota",
+  storageBucket: "bonusrota.firebasestorage.app",
+  messagingSenderId: "754131168907",
+  appId: "1:754131168907:web:ae9df24c7ca0b905a7ae8e"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-/* Supabase bağlanamazsa gösterilecek yedek liste */
+/* Firestore'a ulaşılamazsa gösterilecek yedek liste */
 let SITES = [
-  {name:"NovaBet", bonus:"500", type:"Deneme Bonusu", tag:"trend", link:"#"},
-  {name:"KristalBet", bonus:"1.000", type:"Deneme Bonusu", tag:"trend", link:"#"},
-  {name:"ZirveBahis", bonus:"750", type:"Hoş Geldin Bonusu", tag:"trend", link:"#"},
-  {name:"AtlasCasino", bonus:"2.000", type:"Deneme Bonusu", tag:"popular", link:"#"},
-  {name:"VeloBet", bonus:"300", type:"Freespin Bonusu", tag:"popular", link:"#"},
+  {name:"Stake", bonus:"21 USD", type:"Kayıt Bonusu (Kod: tikobey) — Çevrimsiz", tag:"trend", link:"https://shr.pn/tikobeystake"},
+  {name:"1xBet", bonus:"%100", type:"Hoş Geldin Bonusu — Spor + Casino", tag:"trend", link:"https://shr.pn/tikobey1x"},
+  {name:"Grand Pasha", bonus:"1.000 ₺", type:"Üye Ol, Nakit Kazan", tag:"popular", link:"https://shr.pn/tikobeygrand"},
+  {name:"Roma Bet", bonus:"1.000 ₺", type:"Linke Özel — Limitsiz Çekim", tag:"popular", link:"https://shr.pn/tikobeyroma"},
+  {name:"CasinoDior", bonus:"ÖZEL", type:"Nakit Deneme Bonusu / Sınırsız Çekim", tag:"trend", link:"https://shr.pn/tikodior"},
+  {name:"BayConti", bonus:"ÖZEL", type:"Nakit Deneme Bonusu / Sınırsız Çekim", tag:"trend", link:"https://shr.pn/tikobayconti"},
+  {name:"Gamdom", bonus:"ÖZEL", type:"Nakit Deneme Bonusu / Sınırsız Çekim", tag:"popular", link:"https://shr.pn/tikobeygamdom"},
+  {name:"GoneBET", bonus:"ÖZEL", type:"Nakit Deneme Bonusu / Sınırsız Çekim", tag:"trend", link:"https://shr.pn/gonetikobey"},
+  {name:"Bizbet", bonus:"ÖZEL", type:"Nakit Deneme Bonusu / Sınırsız Çekim", tag:"trend", link:"https://shr.pn/tikobeybizbet"},
 ];
 function renderCard(s){
   const badge = s.tag==='trend' ? '<span class="badge trend">TREND</span>' : '<span class="badge pop">POPÜLER</span>';
@@ -349,16 +360,16 @@ function buildWheel(){
   document.getElementById('wheelSvg').innerHTML = html;
 }
 
-/* ============ SUPABASE'DEN VERİ YÜKLE ============ */
+/* ============ FIRESTORE'DAN VERİ YÜKLE ============ */
 async function loadSites(){
-  if(sb){
-    try{
-      const { data, error } = await sb.from('sites').select('*').eq('active', true).order('display_order', {ascending:true});
-      if(!error && data && data.length){
-        SITES = data.map(d => ({name:d.name, bonus:d.bonus, type:d.type, tag:d.tag, link:d.link||'#', logo:d.logo||''}));
-      }
-    }catch(e){ console.warn('Supabase yüklenemedi, yedek liste kullanılıyor.'); }
-  }
+  try{
+    const snap = await db.collection('sites').where('active', '==', true).get();
+    if(!snap.empty){
+      const rows = snap.docs.map(d => ({id:d.id, ...d.data()}));
+      rows.sort((a,b) => (a.display_order||0) - (b.display_order||0));
+      SITES = rows.map(d => ({name:d.name, bonus:d.bonus, type:d.type, tag:d.tag, link:d.link||'#', logo:d.logo||''}));
+    }
+  }catch(e){ console.warn('Firestore yüklenemedi, yedek liste kullanılıyor.', e); }
   render();
   buildWheel();
 }
@@ -366,12 +377,16 @@ loadSites();
 
 /* ============ ANALİTİK: site açılışını kaydet ============ */
 function logSiteOpen(){
-  if(!sb) return;
   try{
     const tg = window.Telegram && window.Telegram.WebApp;
     const userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : null;
     const source = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || null;
-    sb.from('events').insert({ event_type:'site_open', telegram_user_id:userId, source }).then(()=>{});
+    db.collection('events').add({
+      event_type:'site_open',
+      telegram_user_id:userId,
+      source,
+      created_at: new Date().toISOString(),
+    }).catch(()=>{});
   }catch(e){}
 }
 logSiteOpen();

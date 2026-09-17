@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>BonusRota — İstatistikler</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 :root{--bg:#120c2e;--card:#1a1440;--card2:#251a56;--lilac:#b98cff;--gold:#f5c451;--text:#f4f1ff;--muted:#a99fd1;--line:rgba(185,140,255,.18);--red:#ff6767;--green:#35d68a;}
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Inter',sans-serif;}
@@ -69,10 +70,17 @@ th{color:var(--muted);font-weight:600;text-transform:uppercase;font-size:10px;le
 </div>
 
 <script>
-const SUPABASE_URL = 'https://sjcldekwdheskknxiwtb.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqY2xkZWt3ZGhlc2trbnhpd3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MzkyMzEsImV4cCI6MjA5ODUxNTIzMX0.ti3vUkRgXiJwYr7__qU_ZxHBdh9e3zi-G7tX7ypUdeA';
+const firebaseConfig = {
+  apiKey: "AIzaSyDM_OZQ-QKuEOa7hozQXXzk2ln4jH_hTzM",
+  authDomain: "bonusrota.firebaseapp.com",
+  projectId: "bonusrota",
+  storageBucket: "bonusrota.firebasestorage.app",
+  messagingSenderId: "754131168907",
+  appId: "1:754131168907:web:ae9df24c7ca0b905a7ae8e"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 const ADMIN_PASSWORD = 'telegram202545';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let refreshTimer = null;
 
 function checkPw(){
@@ -89,8 +97,14 @@ function checkPw(){
 document.getElementById('pwInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkPw(); });
 
 async function loadStats(){
-  const { data, error } = await sb.from('events').select('*').order('created_at', {ascending:false}).limit(1000);
-  if(error){ document.getElementById('lastUpdate').textContent = 'Hata: '+error.message; return; }
+  let data;
+  try{
+    const snap = await db.collection('events').orderBy('created_at','desc').limit(1000).get();
+    data = snap.docs.map(d=>d.data());
+  }catch(e){
+    document.getElementById('lastUpdate').textContent = 'Hata: '+e.message;
+    return;
+  }
 
   const starts = data.filter(e=>e.event_type==='bot_start');
   const opens = data.filter(e=>e.event_type==='site_open');

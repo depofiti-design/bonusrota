@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>BonusRota — Yönetim Paneli</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 :root{--bg:#120c2e;--card:#1a1440;--card2:#251a56;--lilac:#b98cff;--gold:#f5c451;--text:#f4f1ff;--muted:#a99fd1;--line:rgba(185,140,255,.18);--red:#ff6767;--green:#35d68a;}
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,'Inter',sans-serif;}
@@ -66,12 +67,18 @@ td input,td select{padding:6px 8px;font-size:12px;}
 </div>
 
 <script>
-/* ============ AYARLAR (doldur) ============ */
-const SUPABASE_URL = 'https://sjcldekwdheskknxiwtb.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqY2xkZWt3ZGhlc2trbnhpd3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MzkyMzEsImV4cCI6MjA5ODUxNTIzMX0.ti3vUkRgXiJwYr7__qU_ZxHBdh9e3zi-G7tX7ypUdeA';
+/* ============ FIREBASE AYARLARI ============ */
+const firebaseConfig = {
+  apiKey: "AIzaSyDM_OZQ-QKuEOa7hozQXXzk2ln4jH_hTzM",
+  authDomain: "bonusrota.firebaseapp.com",
+  projectId: "bonusrota",
+  storageBucket: "bonusrota.firebasestorage.app",
+  messagingSenderId: "754131168907",
+  appId: "1:754131168907:web:ae9df24c7ca0b905a7ae8e"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 const ADMIN_PASSWORD = 'telegram202545'; // istersen değiştir
-
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function checkPw(){
   const v = document.getElementById('pwInput').value;
@@ -92,25 +99,28 @@ function showStatus(msg){
 }
 
 async function loadRows(){
-  const { data, error } = await sb.from('sites').select('*').order('display_order', {ascending:true});
-  if(error){ showStatus('Hata: '+error.message); return; }
-  document.getElementById('siteRows').innerHTML = data.map(rowHtml).join('');
+  try{
+    const snap = await db.collection('sites').get();
+    const rows = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    rows.sort((a,b) => (a.display_order||0) - (b.display_order||0));
+    document.getElementById('siteRows').innerHTML = rows.map(rowHtml).join('');
+  }catch(e){ showStatus('Hata: '+e.message); }
 }
 
 function rowHtml(s){
   return `<tr data-id="${s.id}">
-    <td><input type="number" value="${s.display_order||0}" style="width:60px;" onchange="updateField(${s.id},'display_order',this.value,true)"></td>
-    <td><input value="${s.name||''}" onchange="updateField(${s.id},'name',this.value)"></td>
-    <td><input value="${s.bonus||''}" style="width:80px;" onchange="updateField(${s.id},'bonus',this.value)"></td>
-    <td><input value="${s.type||''}" onchange="updateField(${s.id},'type',this.value)"></td>
-    <td><select onchange="updateField(${s.id},'tag',this.value)">
+    <td><input type="number" value="${s.display_order||0}" style="width:60px;" onchange="updateField('${s.id}','display_order',this.value,true)"></td>
+    <td><input value="${s.name||''}" onchange="updateField('${s.id}','name',this.value)"></td>
+    <td><input value="${s.bonus||''}" style="width:80px;" onchange="updateField('${s.id}','bonus',this.value)"></td>
+    <td><input value="${s.type||''}" onchange="updateField('${s.id}','type',this.value)"></td>
+    <td><select onchange="updateField('${s.id}','tag',this.value)">
       <option value="trend" ${s.tag==='trend'?'selected':''}>Trend</option>
       <option value="popular" ${s.tag==='popular'?'selected':''}>Popüler</option>
     </select></td>
-    <td><input value="${s.link||''}" onchange="updateField(${s.id},'link',this.value)"></td>
-    <td><input value="${s.logo||''}" onchange="updateField(${s.id},'logo',this.value)"></td>
-    <td style="text-align:center;"><input type="checkbox" ${s.active?'checked':''} onchange="updateField(${s.id},'active',this.checked)"></td>
-    <td><div class="row-actions"><button class="btn-danger" onclick="deleteSite(${s.id})">Sil</button></div></td>
+    <td><input value="${s.link||''}" onchange="updateField('${s.id}','link',this.value)"></td>
+    <td><input value="${s.logo||''}" onchange="updateField('${s.id}','logo',this.value)"></td>
+    <td style="text-align:center;"><input type="checkbox" ${s.active?'checked':''} onchange="updateField('${s.id}','active',this.checked)"></td>
+    <td><div class="row-actions"><button class="btn-danger" onclick="deleteSite('${s.id}')">Sil</button></div></td>
   </tr>`;
 }
 
@@ -126,8 +136,9 @@ async function addSite(){
     display_order: 0
   };
   if(!payload.name || !payload.bonus){ alert('Site adı ve bonus zorunlu.'); return; }
-  const { error } = await sb.from('sites').insert(payload);
-  if(error){ showStatus('Hata: '+error.message); return; }
+  try{
+    await db.collection('sites').add(payload);
+  }catch(e){ showStatus('Hata: '+e.message); return; }
   ['newName','newBonus','newLink','newLogo'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('newType').value='Deneme Bonusu';
   showStatus('Site eklendi.');
@@ -136,15 +147,17 @@ async function addSite(){
 
 async function updateField(id, field, value, isNumber){
   const payload = {}; payload[field] = isNumber ? Number(value) : value;
-  const { error } = await sb.from('sites').update(payload).eq('id', id);
-  if(error){ showStatus('Hata: '+error.message); return; }
+  try{
+    await db.collection('sites').doc(id).update(payload);
+  }catch(e){ showStatus('Hata: '+e.message); return; }
   showStatus('Kaydedildi.');
 }
 
 async function deleteSite(id){
   if(!confirm('Bu siteyi silmek istediğine emin misin?')) return;
-  const { error } = await sb.from('sites').delete().eq('id', id);
-  if(error){ showStatus('Hata: '+error.message); return; }
+  try{
+    await db.collection('sites').doc(id).delete();
+  }catch(e){ showStatus('Hata: '+e.message); return; }
   showStatus('Silindi.');
   loadRows();
 }

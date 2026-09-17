@@ -1,20 +1,31 @@
 const WEBAPP_URL = 'https://bonusrota.vercel.app';
-const SUPABASE_URL = 'https://sjcldekwdheskknxiwtb.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqY2xkZWt3ZGhlc2trbnhpd3RiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5MzkyMzEsImV4cCI6MjA5ODUxNTIzMX0.ti3vUkRgXiJwYr7__qU_ZxHBdh9e3zi-G7tX7ypUdeA';
+const FIRESTORE_PROJECT_ID = 'bonusrota';
+
+function toFirestoreFields(obj){
+  const fields = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === null || v === undefined) fields[k] = { nullValue: null };
+    else if (typeof v === 'number') fields[k] = Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+    else if (typeof v === 'boolean') fields[k] = { booleanValue: v };
+    else fields[k] = { stringValue: String(v) };
+  }
+  return fields;
+}
 
 async function logEvent(eventType, telegramUserId, source){
   try{
-    await fetch(`${SUPABASE_URL}/rest/v1/events`, {
+    const url = `https://firestore.googleapis.com/v1/projects/${FIRESTORE_PROJECT_ID}/databases/(default)/documents/events`;
+    await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify({ event_type: eventType, telegram_user_id: telegramUserId ?? null, source: source ?? null }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fields: toFirestoreFields({
+        event_type: eventType,
+        telegram_user_id: telegramUserId ?? null,
+        source: source ?? null,
+        created_at: new Date().toISOString(),
+      })}),
     });
-  }catch(e){ /* analytics hatası bot akışını kesmesin */ }
+  }catch(e){ /* analitik hatası bot akışını kesmesin */ }
 }
 
 const START_MESSAGE = [
