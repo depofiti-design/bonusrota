@@ -16,7 +16,20 @@ BonusRota is a Turkish-language "deneme bonusu" (betting/casino trial-bonus) aff
 - `admin/stats.html` — password-gated (same password) live analytics dashboard reading the `events` Firestore collection: total bot starts, site opens, unique users, per-source breakdown, live event feed. Polls every 5s.
 - `api/telegram-webhook.js` — Vercel serverless function (no npm deps, uses global `fetch`) acting as the Telegram bot's (`@bonusrota_webbot`) webhook. On `/start`, sends a welcome message with an inline `web_app` button opening the site, and logs a `bot_start` event to Firestore via the REST API (no service account needed — Firestore rules are open, see below). Reads `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBHOOK_SECRET` from Vercel environment variables (never hardcoded — repo is public). Validates the `X-Telegram-Bot-Api-Secret-Token` header against `TELEGRAM_WEBHOOK_SECRET`.
 - `firestore.rules` / `firebase.json` / `.firebaserc` — Firestore config; rules are wide open (`allow read, write: if true`) — "test mode", same risk tolerance as before (client-side password gate is the only real protection).
-- `README.md` — Turkish deployment runbook (may still reference the old Supabase flow — treat `firebaseConfig` in the HTML files as the source of truth over README text until it's rewritten).
+- `README.md` — Turkish runbook for the Firebase setup (architecture, env vars, webhook, rules deploy, source tracking). Rewritten after the Supabase removal.
+
+## Live state (as of 2026-09-19)
+
+- Site `https://bonusrota.vercel.app`, bot `@bonusrota_webbot`, Mini App link `t.me/bonusrota_webbot/appweb`. Webhook is set to `/api/telegram-webhook` with a secret token; 0 pending updates at last check.
+- Firestore `sites` holds 9 real sites, all tikobey affiliate links: Stake (`shr.pn/tikobeystake`), 1xBet (`tikobey1x`), Grand Pasha (`tikobeygrand`), Roma Bet (`tikobeyroma`), CasinoDior (`tikodior`), BayConti (`tikobayconti`), Gamdom (`tikobeygamdom`), GoneBET (`gonetikobey`), Bizbet (`tikobeybizbet`). The fallback `SITES` array in `index.html` mirrors this list.
+- Sister project BonusUfku (`C:\Users\Pepe\Projects\bonusufku`, `@bonusufku_webbot`, Firebase project `bonusufku`) has the same architecture and the same 9 sites.
+- Vercel team/project IDs and env-var/redeploy API calls are in the `project_bonus_sites_vercel_automation` memory. Tokens and bot tokens live only in Vercel env vars and memory, never in this public repo.
+
+## Open items
+
+- No custom domain yet (Spaceship was discussed). When bought: add it in Vercel, update `WEBAPP_URL` in `api/telegram-webhook.js`, and change the Web App URL in BotFather (`/myapps`).
+- Telegram Ads research parked: the official platform prohibits gambling (and needs a €2000 minimum), so sponsored posts via marketplaces like Telega.io are the realistic route. Use `?start=<source>` links per placement to track results in `admin/stats.html`.
+- Not yet verified in a real browser that the migrated `index.html` renders Firestore data (only HTTP 200 and a doc count were checked).
 
 ## Analytics
 

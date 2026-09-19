@@ -1,43 +1,49 @@
-[README.md](https://github.com/user-attachments/files/29575845/README.md)
-# BonusRota — Canlıya Alma Adımları
+# BonusRota
 
-## 1. Supabase projesi oluştur
-1. supabase.com → New Project → adı: `bonusrota` (Frankfurt/EU bölgesini seç, kipzone'da da o bölgeyi kullanmıştın)
-2. Proje açılınca sol menü → **SQL Editor** → `schema.sql` dosyasının içeriğini yapıştır → Run
-3. Sol menü → **Project Settings → API** → şunları not al:
-   - `Project URL`
-   - `anon public` key
+Deneme bonusu listeleme sitesi + Telegram Mini App botu (`@bonusrota_webbot`). Statik HTML, Vercel'de yayında, veri Firebase Firestore'da.
 
-## 2. Anahtarları dosyalara işle
-Aşağıdaki iki dosyada `YOUR_PROJECT` ve `YOUR_ANON_KEY` yerlerini doldur:
-- `index.html` (üstte `SUPABASE_URL` / `SUPABASE_ANON_KEY`)
-- `admin/index.html` (aynı satırlar)
+- Site: https://bonusrota.vercel.app
+- Admin: `/admin/` (site ekle/düzenle/sil)
+- İstatistik: `/admin/stats.html` (bot /start, site açılışı, kaynak dağılımı)
+- Gizlilik/sorumlu oyun: `/privacy.html`
+- Bot: https://t.me/bonusrota_webbot (Mini App: `t.me/bonusrota_webbot/appweb`)
 
-İstersen admin şifresini de değiştir: `admin/index.html` içinde `ADMIN_PASSWORD` satırı (şu an: `bonusrota2025`).
+## Mimari
 
-## 3. GitHub'a it (Claude Code'da)
+- `index.html`, `admin/*.html`: Firebase compat SDK ile Firestore'a doğrudan bağlanır (`firebaseConfig`, proje `bonusrota`)
+- `api/telegram-webhook.js`: Vercel serverless, Telegram webhook. `/start` gelince karşılama mesajı + "Siteye Gir" butonu gönderir, `events` koleksiyonuna `bot_start` yazar (Firestore REST)
+- `firestore.rules`: açık kurallar (test modu), koruma sadece admin şifre ekranı
+
+## Firestore koleksiyonları
+
+- `sites`: `name, bonus, type, tag (trend|popular), link, logo, display_order, active`
+- `events`: `event_type (bot_start|site_open), telegram_user_id, source, created_at`
+
+## Vercel ortam değişkenleri
+
+- `TELEGRAM_BOT_TOKEN`: BotFather token
+- `TELEGRAM_WEBHOOK_SECRET`: webhook doğrulama gizli anahtarı
+
+Değiştirince redeploy gerekir.
+
+## Webhook kurulumu
+
 ```
-cd bonusrota
-git init
-git add .
-git commit -m "BonusRota ilk sürüm"
-gh repo create depofiti-design/bonusrota --public --source=. --push
+curl "https://api.telegram.org/bot<TOKEN>/setWebhook" \
+  -d "url=https://bonusrota.vercel.app/api/telegram-webhook" \
+  -d "secret_token=<TELEGRAM_WEBHOOK_SECRET>"
 ```
-(GitHub CLI kurulu değilse: github.com üzerinden repo oluşturup `git remote add origin ...` ile bağlayabilirsin.)
 
-## 4. Vercel'e deploy et
-- vercel.com → Add New Project → GitHub reposunu seç → Deploy
-- Framework: **Other** / **Static** (build komutu yok, direkt statik dosyalar)
-- Deploy sonrası adres: `bonusrota.vercel.app` (Vercel otomatik verir, istersen Project Settings'ten değiştirilebilir)
+## Firestore kuralları deploy
 
-## 5. Supabase'in uyumasını engelle
-Free tier projeler 7 gün işlem görmeyince duraklıyor (kipzone'da yaşadığın sorun). UptimeRobot'a
-`https://YOUR_PROJECT.supabase.co/rest/v1/` adresini her 5 dakikada bir ping atacak şekilde ekle.
+```
+npx firebase deploy --only firestore:rules --project bonusrota
+```
 
-## 6. Site ekleme / düzenleme
-`bonusrota.vercel.app/admin/` adresine git, şifreyi gir, siteleri buradan yönet.
-Değişiklikler anasayfada anında görünür (sayfa yenilendiğinde).
+## Kaynak takibi
 
----
-**Not:** `index.html` içinde Supabase'e bağlanılamazsa (internet sorunu, yanlış anahtar vb.)
-sayfa otomatik olarak dosya içindeki yedek listeye düşer, site hiç boş görünmez.
+Reklam/link başına `t.me/bonusrota_webbot?start=<kaynak>` kullan. `<kaynak>` stats sayfasında ayrı satır olarak görünür.
+
+## Not
+
+Site Firestore'a ulaşamazsa `index.html` içindeki yedek `SITES` listesini gösterir. Admin'den yapılan değişiklikler yedek listeye yansımaz.
