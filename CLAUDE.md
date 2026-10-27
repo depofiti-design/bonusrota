@@ -18,11 +18,12 @@ BonusRota is a Turkish-language "deneme bonusu" (betting/casino trial-bonus) aff
 - `firestore.rules` / `firebase.json` / `.firebaserc` — Firestore config; rules are wide open (`allow read, write: if true`) — "test mode", same risk tolerance as before (client-side password gate is the only real protection).
 - `README.md` — Turkish runbook for the Firebase setup (architecture, env vars, webhook, rules deploy, source tracking). Rewritten after the Supabase removal.
 
-## Live state (as of 2026-09-19)
+## Live state (as of 2026-10-27)
 
 - Site `https://bonusrota.vercel.app`, bot `@bonusrota_webbot`, Mini App link `t.me/bonusrota_webbot/appweb`. Webhook is set to `/api/telegram-webhook` with a secret token; 0 pending updates at last check.
 - Firestore `sites` holds 9 real sites, all tikobey affiliate links: Stake (`shr.pn/tikobeystake`), 1xBet (`tikobey1x`), Grand Pasha (`tikobeygrand`), Roma Bet (`tikobeyroma`), CasinoDior (`tikodior`), BayConti (`tikobayconti`), Gamdom (`tikobeygamdom`), GoneBET (`gonetikobey`), Bizbet (`tikobeybizbet`). The fallback `SITES` array in `index.html` mirrors this list.
-- Sister project BonusUfku (`C:\Users\Pepe\Projects\bonusufku`, `@bonusufku_webbot`, Firebase project `bonusufku`) has the same architecture and the same 9 sites.
+- Sister project BonusUfku (`C:\Users\Pepe\Projects\bonusufku`, `@bonusufku_webbot`, Firebase project `bonusufku`) has the same architecture and the same 9 sites, plus (as of 2026-10-23) a visitor/click/IP tracking endpoint (`api/track.js`, see its own CLAUDE.md) that BonusRota does **not** have yet — only `bot_start`/`site_open` with no IP here.
+- Traffic here is minimal too: `events` has only ~7 docs total (last one 2026-10-19), 1 distinct Telegram user ever. No `/api/track`-style IP capture or click tracking exists on this repo — only mirror it over from BonusUfku if asked.
 - Vercel team/project IDs and env-var/redeploy API calls are in the `project_bonus_sites_vercel_automation` memory. Tokens and bot tokens live only in Vercel env vars and memory, never in this public repo.
 
 ## Open items
