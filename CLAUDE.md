@@ -29,7 +29,7 @@ BonusRota is a Turkish-language "deneme bonusu" (betting/casino trial-bonus) aff
 
 - No custom domain yet (Spaceship was discussed). When bought: add it in Vercel, update `WEBAPP_URL` in `api/telegram-webhook.js`, and change the Web App URL in BotFather (`/myapps`).
 - Telegram Ads research parked: the official platform prohibits gambling (and needs a €2000 minimum), so sponsored posts via marketplaces like Telega.io are the realistic route. Use `?start=<source>` links per placement to track results in `admin/stats.html`.
-- Not yet verified in a real browser that the migrated `index.html` renders Firestore data (only HTTP 200 and a doc count were checked).
+- Verified in a real browser on 2026-09-21 (Playwright): `index.html` renders all 9 sites with correct affiliate links and opens live Firestore Listen/Write channels (200). Only console error is a missing `/favicon.ico` (404), cosmetic.
 
 ## Analytics
 
